@@ -1,0 +1,8 @@
+name: 'Backup and Restore'
+services:
+  backup-restore:
+    build: .
+    env_file:
+      - .env
+    volumes:
+      - ./backups:/backups
