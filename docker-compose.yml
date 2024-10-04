@@ -1,4 +1,3 @@
-name: 'Backup and Restore'
 services:
   backup-restore:
     build: .

@@ -42,7 +42,11 @@ def create_backup():
     try:
         with open(backup_file, "w") as f:
             subprocess.run(
-                mysqldump_cmd, stdout=f, stderr=subprocess.PIPE, check=True, text=True
+                mysqldump_cmd,
+                stdout=f,
+                stderr=subprocess.PIPE,
+                check=True,
+                text=True,
             )
     except subprocess.CalledProcessError as e:
         print(f"Error durante la ejecución de mysqldump: {e}")
@@ -76,12 +80,39 @@ def restore_backup(backup_file):
     print(f"Backup restaurado desde: {backup_file}")
 
 
+def create_database():
+    mysql_cmd = [
+        "mysql",
+        f"--protocol=TCP",
+        f"--host={DEST_HOST}",
+        f"--port={DEST_PORT}",
+        f"--user={DEST_USER}",
+        f"--password={DEST_PASSWORD}",
+        f"-e CREATE DATABASE IF NOT EXISTS {DEST_DATABASE}",
+    ]
+
+    try:
+        subprocess.run(mysql_cmd, check=True, text=True)
+    except subprocess.CalledProcessError as e:
+        print(f"Error durante la creacion de la base de datos: {e}")
+        print(f"Salida de error: {e.stderr}")
+        raise
+
+    print(f"Base de datos creada: {DEST_DATABASE}")
+
+
 def main():
     try:
         # Crear el backup
+        print("Creando backup...")
         backup_file = create_backup()
 
+        # Crear la base de datos de destino
+        print("Creando base de datos de destino...")
+        create_database()
+
         # Restaurar el backup
+        print("Restaurando backup...")
         restore_backup(backup_file)
 
         print("Proceso de backup y restauración completado con éxito.")
